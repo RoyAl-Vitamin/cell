@@ -26,7 +26,7 @@ private:
     void renderNet();
     void renderField();
     void calcField();
-    void swapField();
+    void copyField();
 
     const int hCell = 8;
     const int wCell = 8;

@@ -74,7 +74,7 @@ void Engine::render() {
 
     renderField();
 
-    swapField();
+    copyField();
 
     SDL_RenderPresent(pRenderer); // draw to the screen
 }
@@ -169,6 +169,7 @@ void Engine::renderField() {
         }
     }
     SDL_RenderFillRects(Engine::pRenderer, rects, count);
+    delete[] rects;
 }
 
 /*
@@ -229,7 +230,7 @@ void Engine::calcField() {
     }
 }
 
-void Engine::swapField(){
+void Engine::copyField(){
     for (unsigned int i = 1; i < Engine::width / Engine::wCell - 1; i++) {
         for (unsigned int j = 1; j < Engine::height / Engine::hCell - 1; j++) {
             Engine::prevField[i][j].setStatus(Engine::currField[i][j].getStatus());
