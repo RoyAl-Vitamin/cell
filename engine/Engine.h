@@ -7,12 +7,14 @@
 
 #include <SDL2/SDL.h>
 #include <iostream>
+#include <random>
+#include "cell/Cell.h"
 
 class Engine {
 public:
 
-    bool init(std::wstring wtitle, int height, int width);
-    bool init(const char* title, int xpos, int ypos, int height, int width, Uint32 flags);
+    bool init(std::wstring wtitle, int width, int height);
+    bool init(const char* title, int xpos, int ypos, int width, int height, Uint32 flags);
     void render();
     void update();
     void handleEvents();
@@ -20,8 +22,19 @@ public:
     bool isRunning();
 
 private:
+
+    void renderNet();
+    void renderField();
+    void calcField();
+    void swapField();
+
+    const int hCell = 8;
+    const int wCell = 8;
+    Cell **prevField;
+    Cell **currField;
     int currentFrame;
     bool bRunning;
+    int height, width;
     SDL_Window *pWindow;
     SDL_Renderer *pRenderer;
 };

@@ -12,8 +12,8 @@
 #include <emscripten.h>
 #endif
 
-const int HEIGHT = 640;
-const int WIDTH = 480;
+const int WIDTH = 640;
+const int HEIGHT = 480;
 
 const int FPS = 60;
 const int DELAY_TIME = 1000.0f / FPS;
@@ -26,7 +26,6 @@ void mainLoopEmcc(void *arg) {
     }
 
     std::unique_ptr<Engine> pEngine((Engine *) arg);
-    //Engine * pEngine = ((Engine *) arg);
     if (!pEngine->isRunning()) {
         std::wcout << L"engine not running!" << std::endl;
         pEngine->clean();
@@ -46,7 +45,7 @@ int main(int argc, char* argv[]) {
     unsigned int frameStart, frameTime;
     auto pEngine = std::make_unique<Engine>();
 
-    pEngine->init(L"Cell", HEIGHT, WIDTH);
+    pEngine->init(L"Cell", WIDTH, HEIGHT);
 
     #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop_arg(mainLoopEmcc, pEngine.release(), FPS, 1);

@@ -9,5 +9,5 @@ find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(SDL2Test ${SDL2_INCLUDE_DIRS})
 
-add_executable(Cell main.cpp engine/Engine.cpp engine/Engine.h)
+add_executable(Cell main.cpp engine/Engine.cpp engine/Engine.h engine/cell/Cell.cpp engine/cell/Cell.h)
 target_link_libraries(Cell ${SDL2_LIBRARIES})
