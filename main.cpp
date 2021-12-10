@@ -18,12 +18,39 @@ const int WIDTH = 480;
 const int FPS = 60;
 const int DELAY_TIME = 1000.0f / FPS;
 
+#ifdef __EMSCRIPTEN__
+void mainLoopEmcc(void *arg) {
+    if (!arg) {
+        std::wcout << L"engine not init!" << std::endl;
+        emscripten_cancel_main_loop();
+    }
+
+    std::unique_ptr<Engine> pEngine((Engine *) arg);
+    //Engine * pEngine = ((Engine *) arg);
+    if (!pEngine->isRunning()) {
+        std::wcout << L"engine not running!" << std::endl;
+        pEngine->clean();
+        emscripten_cancel_main_loop();
+        return;
+    }
+
+    pEngine->handleEvents();
+    pEngine->update();
+    pEngine->render();
+
+    pEngine.release();
+}
+#endif
+
 int main(int argc, char* argv[]) {
     unsigned int frameStart, frameTime;
     auto pEngine = std::make_unique<Engine>();
 
     pEngine->init(L"Cell", HEIGHT, WIDTH);
 
+    #ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop_arg(mainLoopEmcc, pEngine.release(), FPS, 1);
+    #else
     while(pEngine->isRunning()) {
         frameStart = SDL_GetTicks();
 
@@ -37,5 +64,7 @@ int main(int argc, char* argv[]) {
         }
     }
     pEngine->clean();
+    #endif
+
     return 0;
 }

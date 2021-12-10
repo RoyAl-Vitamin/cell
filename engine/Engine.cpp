@@ -12,10 +12,17 @@ bool Engine::init(std::wstring wtitle, int height, int width) {
 
 bool Engine::init(const char* title, int xpos, int ypos, int height, int width, Uint32 flags) {
     // initialize SDL
+    #ifdef __EMSCRIPTEN__
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        std::wcout << L"SDL2 could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+        return false; // sdl could not initialize
+    }
+    #else
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
         std::wcout << L"SDL2 could not be created! SDL_Error: " << SDL_GetError() << std::endl;
         return false; // sdl could not initialize
     }
+    #endif
 
     Engine::pWindow = SDL_CreateWindow(title, xpos, ypos, height, width, flags);
     if (Engine::pWindow == nullptr) {
@@ -47,15 +54,15 @@ void Engine::handleEvents() {
     if (SDL_PollEvent(&event)) {
         switch (event.type) {
         case SDL_QUIT: // Close button
+            std::wcout << L"quit" << std::endl;
             bRunning = false;
             break;
         case SDL_KEYDOWN: // Press any key
+            std::wcout << L"KEY DOWN" << std::endl;
             if (event.key.keysym.sym == SDLK_ESCAPE) { // press ESC
                 bRunning = false;
                 break;
             }
-        default:
-            break;
         }
     }
 }
