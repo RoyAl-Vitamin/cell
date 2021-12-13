@@ -27,6 +27,7 @@ private:
     void renderField();
     void calcField();
     void copyField();
+    void countAliveCurrentField();
 
     const int hCell = 8;
     const int wCell = 8;

@@ -12,19 +12,23 @@ bool Engine::init(std::wstring wtitle, int width, int height) {
 
     Engine::prevField = new Cell * [width / Engine::wCell];
     Engine::currField = new Cell * [width / Engine::wCell];
+    unsigned int alive = 0, dead = 0;
     for (unsigned int i = 0; i < width / Engine::wCell; i++) {
         Engine::prevField[i] = new Cell[height / Engine::hCell];
         Engine::currField[i] = new Cell[height / Engine::hCell];
         for (unsigned int j = 0; j < height / Engine::hCell; j++) {
-            if (((double) rand() / (RAND_MAX)) > 0.1) {
+            if (((double) rand() / (RAND_MAX)) > 0.2) {
                 Engine::currField[i][j].setStatus(Status::ALIVE);
                 Engine::prevField[i][j].setStatus(Status::ALIVE);
+                alive++;
             } else {
                 Engine::currField[i][j].setStatus(Status::DEAD);
                 Engine::prevField[i][j].setStatus(Status::DEAD);
+                dead++;
             }
         }
     }
+    std::wcout << L"ALIVE == " << alive << L", DEAD == " << dead << std::endl;
 
     return Engine::init(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
 }
@@ -197,6 +201,7 @@ void Engine::calcField() {
     if (Engine::prevField[Engine::width / Engine::wCell - 1][1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
     if (Engine::prevField[0][1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
     if (Engine::prevField[1][1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
     if (Engine::prevField[0][0].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
         Engine::currField[0][0].setStatus(Status::DEAD);
     }
@@ -204,10 +209,74 @@ void Engine::calcField() {
         Engine::currField[0][0].setStatus(Status::ALIVE);
     }
 
+    // Zone 2
+    for (unsigned int i = 1; i < Engine::width / Engine::wCell - 1; i++) {
+        countAliveNeighbor = 0;
+        if (Engine::prevField[i - 1][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[i][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[i + 1][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+        if (Engine::prevField[i - 1][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[i + 1][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+        if (Engine::prevField[i - 1][1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[i][1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[i + 1][1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+        if (Engine::prevField[i][0].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
+            Engine::currField[i][0].setStatus(Status::DEAD);
+        }
+        if (Engine::prevField[i][0].getStatus() == Status::DEAD && countAliveNeighbor == 3) {
+            Engine::currField[i][0].setStatus(Status::ALIVE);
+        }
+    }
+
+    // Zone 3
+    countAliveNeighbor = 0;
+    if (Engine::prevField[Engine::width / Engine::wCell - 2][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+    if (Engine::prevField[Engine::width / Engine::wCell - 1][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+    if (Engine::prevField[0][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+    if (Engine::prevField[Engine::width / Engine::wCell - 2][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+    if (Engine::prevField[0][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+    if (Engine::prevField[Engine::width / Engine::wCell - 2][1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+    if (Engine::prevField[Engine::width / Engine::wCell - 1][1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+    if (Engine::prevField[0][1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+    if (Engine::prevField[Engine::width / Engine::wCell - 1][0].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
+        Engine::currField[Engine::width / Engine::wCell - 1][0].setStatus(Status::DEAD);
+    }
+    if (Engine::prevField[Engine::width / Engine::wCell - 1][0].getStatus() == Status::DEAD && countAliveNeighbor == 3) {
+        Engine::currField[Engine::width / Engine::wCell - 1][0].setStatus(Status::ALIVE);
+    }
+
+    // Zone 4
+    for (unsigned int j = 1; j < Engine::height / Engine::hCell - 1; j++) {
+        countAliveNeighbor = 0;
+        if (Engine::prevField[Engine::width / Engine::wCell - 1][j - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[0][j - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[1][j - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+        if (Engine::prevField[Engine::width / Engine::wCell - 1][j].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[1][j].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+        if (Engine::prevField[Engine::width / Engine::wCell - 1][j + 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[0][j + 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[1][j + 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+        if (Engine::prevField[0][j].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
+            Engine::currField[0][j].setStatus(Status::DEAD);
+        }
+        if (Engine::prevField[0][j].getStatus() == Status::DEAD && countAliveNeighbor == 3) {
+            Engine::currField[0][j].setStatus(Status::ALIVE);
+        }
+    }
+
     // Zone 5
     for (unsigned int i = 1; i < Engine::width / Engine::wCell - 1; i++) {
         for (unsigned int j = 1; j < Engine::height / Engine::hCell - 1; j++) {
-            int countAliveNeighbor = 0;
+            countAliveNeighbor = 0;
             if (Engine::prevField[i - 1][j - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
             if (Engine::prevField[i][j - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
             if (Engine::prevField[i + 1][j - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
@@ -218,6 +287,7 @@ void Engine::calcField() {
             if (Engine::prevField[i - 1][j + 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
             if (Engine::prevField[i][j + 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
             if (Engine::prevField[i + 1][j + 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
             if (Engine::prevField[i][j].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
                 Engine::currField[i][j].setStatus(Status::DEAD);
             }
@@ -228,12 +298,109 @@ void Engine::calcField() {
 
         }
     }
+
+    // Zone 6
+    for (unsigned int j = 1; j < Engine::height / Engine::hCell - 1; j++) {
+        countAliveNeighbor = 0;
+        if (Engine::prevField[Engine::width / Engine::wCell - 2][j - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[Engine::width / Engine::wCell - 1][j - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[0][j - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+        if (Engine::prevField[Engine::width / Engine::wCell - 2][j].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[0][j].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+        if (Engine::prevField[Engine::width / Engine::wCell - 2][j + 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[Engine::width / Engine::wCell - 1][j + 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[0][j + 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+        if (Engine::prevField[Engine::width / Engine::wCell - 1][j].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
+            Engine::currField[Engine::width / Engine::wCell - 1][j].setStatus(Status::DEAD);
+        }
+        if (Engine::prevField[Engine::width / Engine::wCell - 1][j].getStatus() == Status::DEAD && countAliveNeighbor == 3) {
+            Engine::currField[Engine::width / Engine::wCell - 1][j].setStatus(Status::ALIVE);
+        }
+    }
+
+    // Zone 7
+    countAliveNeighbor = 0;
+    if (Engine::prevField[Engine::width / Engine::wCell - 2][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+    if (Engine::prevField[0][Engine::height / Engine::hCell - 2].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+    if (Engine::prevField[1][Engine::height / Engine::hCell - 2].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+    if (Engine::prevField[Engine::width / Engine::wCell - 1][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+    if (Engine::prevField[1][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+    if (Engine::prevField[0][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+    if (Engine::prevField[0][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+    if (Engine::prevField[1][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+    if (Engine::prevField[0][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
+        Engine::currField[0][Engine::height / Engine::hCell - 1].setStatus(Status::DEAD);
+    }
+    if (Engine::prevField[0][Engine::height / Engine::hCell - 1].getStatus() == Status::DEAD && countAliveNeighbor == 3) {
+        Engine::currField[0][Engine::height / Engine::hCell - 1].setStatus(Status::ALIVE);
+    }
+
+    // Zone 8
+    for (unsigned int i = 1; i < Engine::width / Engine::wCell - 1; i++) {
+        countAliveNeighbor = 0;
+        if (Engine::prevField[i - 1][Engine::height / Engine::hCell - 2].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[i][Engine::height / Engine::hCell - 2].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[i + 1][Engine::height / Engine::hCell - 2].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+        if (Engine::prevField[i - 1][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[i + 1][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+        if (Engine::prevField[i - 1][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[i][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+        if (Engine::prevField[i + 1][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+        if (Engine::prevField[i][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
+            Engine::currField[i][Engine::height / Engine::hCell - 1].setStatus(Status::DEAD);
+        }
+        if (Engine::prevField[i][Engine::height / Engine::hCell - 1].getStatus() == Status::DEAD && countAliveNeighbor == 3) {
+            Engine::currField[i][Engine::height / Engine::hCell - 1].setStatus(Status::ALIVE);
+        }
+    }
+
+    // Zone 9
+    countAliveNeighbor = 0;
+    if (Engine::prevField[Engine::width / Engine::wCell - 2][Engine::height / Engine::hCell - 2].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+    if (Engine::prevField[Engine::width / Engine::wCell - 1][Engine::height / Engine::hCell - 2].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+    if (Engine::prevField[0][2].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+    if (Engine::prevField[Engine::width / Engine::wCell - 2][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+    if (Engine::prevField[0][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+    if (Engine::prevField[Engine::width / Engine::wCell - 2][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+    if (Engine::prevField[Engine::width / Engine::wCell - 1][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+    if (Engine::prevField[0][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
+
+    if (Engine::prevField[Engine::width / Engine::wCell - 1][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
+        Engine::currField[Engine::width / Engine::wCell - 1][Engine::height / Engine::hCell - 1].setStatus(Status::DEAD);
+    }
+    if (Engine::prevField[Engine::width / Engine::wCell - 1][Engine::height / Engine::hCell - 1].getStatus() == Status::DEAD && countAliveNeighbor == 3) {
+        Engine::currField[Engine::width / Engine::wCell - 1][Engine::height / Engine::hCell - 1].setStatus(Status::ALIVE);
+    }
 }
 
-void Engine::copyField(){
-    for (unsigned int i = 1; i < Engine::width / Engine::wCell - 1; i++) {
-        for (unsigned int j = 1; j < Engine::height / Engine::hCell - 1; j++) {
+void Engine::copyField() {
+    for (unsigned int i = 0; i < Engine::width / Engine::wCell; i++) {
+        for (unsigned int j = 0; j < Engine::height / Engine::hCell; j++) {
             Engine::prevField[i][j].setStatus(Engine::currField[i][j].getStatus());
         }
     }
+}
+
+void Engine::countAliveCurrentField() {
+    int count = 0;
+
+    for (unsigned int i = 0; i < Engine::width / Engine::wCell; i++) {
+        for (unsigned int j = 0; j < Engine::height / Engine::hCell; j++) {
+            if (Engine::currField[i][j].getStatus() == Status::ALIVE) {
+                count++;
+            }
+        }
+    }
+    std::wcout << L"Count alive == " << count << std::endl;
 }
