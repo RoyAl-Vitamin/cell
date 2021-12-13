@@ -17,7 +17,7 @@ bool Engine::init(std::wstring wtitle, int width, int height) {
         Engine::prevField[i] = new Cell[height / Engine::hCell];
         Engine::currField[i] = new Cell[height / Engine::hCell];
         for (unsigned int j = 0; j < height / Engine::hCell; j++) {
-            if (((double) rand() / (RAND_MAX)) > 0.2) {
+            if (((double) rand() / (RAND_MAX)) > 0.9) {
                 Engine::currField[i][j].setStatus(Status::ALIVE);
                 Engine::prevField[i][j].setStatus(Status::ALIVE);
                 alive++;
@@ -97,6 +97,16 @@ void Engine::handleEvents() {
                 Engine::bRunning = false;
                 break;
             }
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+            int x, y;
+            SDL_GetMouseState( &x, &y );
+            std::wcout << L"Mouse coords [" << x << L", " << y << L"] == CELL [" << x / Engine::wCell << L", " << y / Engine::hCell << L"]" << std::endl;
+            int xIndex = x / Engine::wCell, yIndex = y / Engine::hCell;
+
+            Engine::prevField[xIndex][yIndex].setStatus(Status::ALIVE);
+            Engine::currField[xIndex][yIndex].setStatus(Status::ALIVE);
+            break;
         }
     }
 }
@@ -157,7 +167,7 @@ void Engine::renderField() {
             }
         }
     }
-    std::wcout << L"count == " << count << std::endl;
+    //std::wcout << L"Count ALIVE == " << count << std::endl;
 
     SDL_Rect * rects = new SDL_Rect[count];
     count = 0;
@@ -202,11 +212,17 @@ void Engine::calcField() {
     if (Engine::prevField[0][1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
     if (Engine::prevField[1][1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
 
-    if (Engine::prevField[0][0].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
-        Engine::currField[0][0].setStatus(Status::DEAD);
-    }
-    if (Engine::prevField[0][0].getStatus() == Status::DEAD && countAliveNeighbor == 3) {
-        Engine::currField[0][0].setStatus(Status::ALIVE);
+    switch (Engine::prevField[0][0].getStatus()) {
+        case Status::ALIVE:
+            if (countAliveNeighbor < 2 || countAliveNeighbor > 3) {
+                Engine::currField[0][0].setStatus(Status::DEAD);
+            }
+            break;
+        case Status::DEAD:
+            if (countAliveNeighbor == 3) {
+                Engine::currField[0][0].setStatus(Status::ALIVE);
+            }
+            break;
     }
 
     // Zone 2
@@ -223,11 +239,17 @@ void Engine::calcField() {
         if (Engine::prevField[i][1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
         if (Engine::prevField[i + 1][1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
 
-        if (Engine::prevField[i][0].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
-            Engine::currField[i][0].setStatus(Status::DEAD);
-        }
-        if (Engine::prevField[i][0].getStatus() == Status::DEAD && countAliveNeighbor == 3) {
-            Engine::currField[i][0].setStatus(Status::ALIVE);
+        switch (Engine::prevField[i][0].getStatus()) {
+            case Status::ALIVE:
+                if (countAliveNeighbor < 2 || countAliveNeighbor > 3) {
+                    Engine::currField[i][0].setStatus(Status::DEAD);
+                }
+                break;
+            case Status::DEAD:
+                if (countAliveNeighbor == 3) {
+                    Engine::currField[i][0].setStatus(Status::ALIVE);
+                }
+                break;
         }
     }
 
@@ -244,11 +266,17 @@ void Engine::calcField() {
     if (Engine::prevField[Engine::width / Engine::wCell - 1][1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
     if (Engine::prevField[0][1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
 
-    if (Engine::prevField[Engine::width / Engine::wCell - 1][0].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
-        Engine::currField[Engine::width / Engine::wCell - 1][0].setStatus(Status::DEAD);
-    }
-    if (Engine::prevField[Engine::width / Engine::wCell - 1][0].getStatus() == Status::DEAD && countAliveNeighbor == 3) {
-        Engine::currField[Engine::width / Engine::wCell - 1][0].setStatus(Status::ALIVE);
+    switch (Engine::prevField[Engine::width / Engine::wCell - 1][0].getStatus()) {
+        case Status::ALIVE:
+            if (countAliveNeighbor < 2 || countAliveNeighbor > 3) {
+                Engine::currField[Engine::width / Engine::wCell - 1][0].setStatus(Status::DEAD);
+            }
+            break;
+        case Status::DEAD:
+            if (countAliveNeighbor == 3) {
+                Engine::currField[Engine::width / Engine::wCell - 1][0].setStatus(Status::ALIVE);
+            }
+            break;
     }
 
     // Zone 4
@@ -265,11 +293,17 @@ void Engine::calcField() {
         if (Engine::prevField[0][j + 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
         if (Engine::prevField[1][j + 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
 
-        if (Engine::prevField[0][j].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
-            Engine::currField[0][j].setStatus(Status::DEAD);
-        }
-        if (Engine::prevField[0][j].getStatus() == Status::DEAD && countAliveNeighbor == 3) {
-            Engine::currField[0][j].setStatus(Status::ALIVE);
+        switch (Engine::prevField[0][j].getStatus()) {
+            case Status::ALIVE:
+                if (countAliveNeighbor < 2 || countAliveNeighbor > 3) {
+                    Engine::currField[0][j].setStatus(Status::DEAD);
+                }
+                break;
+            case Status::DEAD:
+                if (countAliveNeighbor == 3) {
+                    Engine::currField[0][j].setStatus(Status::ALIVE);
+                }
+                break;
         }
     }
 
@@ -288,14 +322,20 @@ void Engine::calcField() {
             if (Engine::prevField[i][j + 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
             if (Engine::prevField[i + 1][j + 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
 
-            if (Engine::prevField[i][j].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
-                Engine::currField[i][j].setStatus(Status::DEAD);
+            // std::wcout << L"For [" << i << L", " << j << L"] alive neighbor == " << countAliveNeighbor << std::endl;
+            
+            switch (Engine::prevField[i][j].getStatus()) {
+            case Status::ALIVE:
+                if (countAliveNeighbor < 2 || countAliveNeighbor > 3) {
+                    Engine::currField[i][j].setStatus(Status::DEAD);
+                }
+                break;
+            case Status::DEAD:
+                if (countAliveNeighbor == 3) {
+                    Engine::currField[i][j].setStatus(Status::ALIVE);
+                }
+                break;
             }
-
-            if (Engine::prevField[i][j].getStatus() == Status::DEAD && countAliveNeighbor == 3) {
-                Engine::currField[i][j].setStatus(Status::ALIVE);
-            }
-
         }
     }
 
@@ -313,11 +353,17 @@ void Engine::calcField() {
         if (Engine::prevField[Engine::width / Engine::wCell - 1][j + 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
         if (Engine::prevField[0][j + 1].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
 
-        if (Engine::prevField[Engine::width / Engine::wCell - 1][j].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
-            Engine::currField[Engine::width / Engine::wCell - 1][j].setStatus(Status::DEAD);
-        }
-        if (Engine::prevField[Engine::width / Engine::wCell - 1][j].getStatus() == Status::DEAD && countAliveNeighbor == 3) {
-            Engine::currField[Engine::width / Engine::wCell - 1][j].setStatus(Status::ALIVE);
+        switch (Engine::prevField[Engine::width / Engine::wCell - 1][j].getStatus()) {
+            case Status::ALIVE:
+                if (countAliveNeighbor < 2 || countAliveNeighbor > 3) {
+                    Engine::currField[Engine::width / Engine::wCell - 1][j].setStatus(Status::DEAD);
+                }
+                break;
+            case Status::DEAD:
+                if (countAliveNeighbor == 3) {
+                    Engine::currField[Engine::width / Engine::wCell - 1][j].setStatus(Status::ALIVE);
+                }
+                break;
         }
     }
 
@@ -334,11 +380,17 @@ void Engine::calcField() {
     if (Engine::prevField[0][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
     if (Engine::prevField[1][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
 
-    if (Engine::prevField[0][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
-        Engine::currField[0][Engine::height / Engine::hCell - 1].setStatus(Status::DEAD);
-    }
-    if (Engine::prevField[0][Engine::height / Engine::hCell - 1].getStatus() == Status::DEAD && countAliveNeighbor == 3) {
-        Engine::currField[0][Engine::height / Engine::hCell - 1].setStatus(Status::ALIVE);
+    switch (Engine::prevField[0][Engine::height / Engine::hCell - 1].getStatus()) {
+        case Status::ALIVE:
+            if (countAliveNeighbor < 2 || countAliveNeighbor > 3) {
+                Engine::currField[0][Engine::height / Engine::hCell - 1].setStatus(Status::DEAD);
+            }
+            break;
+        case Status::DEAD:
+            if (countAliveNeighbor == 3) {
+                Engine::currField[0][Engine::height / Engine::hCell - 1].setStatus(Status::ALIVE);
+            }
+            break;
     }
 
     // Zone 8
@@ -355,11 +407,17 @@ void Engine::calcField() {
         if (Engine::prevField[i][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
         if (Engine::prevField[i + 1][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
 
-        if (Engine::prevField[i][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
-            Engine::currField[i][Engine::height / Engine::hCell - 1].setStatus(Status::DEAD);
-        }
-        if (Engine::prevField[i][Engine::height / Engine::hCell - 1].getStatus() == Status::DEAD && countAliveNeighbor == 3) {
-            Engine::currField[i][Engine::height / Engine::hCell - 1].setStatus(Status::ALIVE);
+        switch (Engine::prevField[i][Engine::height / Engine::hCell - 1].getStatus()) {
+            case Status::ALIVE:
+                if (countAliveNeighbor < 2 || countAliveNeighbor > 3) {
+                    Engine::currField[i][Engine::height / Engine::hCell - 1].setStatus(Status::DEAD);
+                }
+                break;
+            case Status::DEAD:
+                if (countAliveNeighbor == 3) {
+                    Engine::currField[i][Engine::height / Engine::hCell - 1].setStatus(Status::ALIVE);
+                }
+                break;
         }
     }
 
@@ -376,11 +434,17 @@ void Engine::calcField() {
     if (Engine::prevField[Engine::width / Engine::wCell - 1][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
     if (Engine::prevField[0][0].getStatus() == Status::ALIVE) { countAliveNeighbor++; }
 
-    if (Engine::prevField[Engine::width / Engine::wCell - 1][Engine::height / Engine::hCell - 1].getStatus() == Status::ALIVE && (countAliveNeighbor != 2 || countAliveNeighbor != 3)) {
-        Engine::currField[Engine::width / Engine::wCell - 1][Engine::height / Engine::hCell - 1].setStatus(Status::DEAD);
-    }
-    if (Engine::prevField[Engine::width / Engine::wCell - 1][Engine::height / Engine::hCell - 1].getStatus() == Status::DEAD && countAliveNeighbor == 3) {
-        Engine::currField[Engine::width / Engine::wCell - 1][Engine::height / Engine::hCell - 1].setStatus(Status::ALIVE);
+    switch (Engine::prevField[Engine::width / Engine::wCell - 1][Engine::height / Engine::hCell - 1].getStatus()) {
+        case Status::ALIVE:
+            if (countAliveNeighbor < 2 || countAliveNeighbor > 3) {
+                Engine::currField[Engine::width / Engine::wCell - 1][Engine::height / Engine::hCell - 1].setStatus(Status::DEAD);
+            }
+            break;
+        case Status::DEAD:
+            if (countAliveNeighbor == 3) {
+                Engine::currField[Engine::width / Engine::wCell - 1][Engine::height / Engine::hCell - 1].setStatus(Status::ALIVE);
+            }
+            break;
     }
 }
 
@@ -402,5 +466,5 @@ void Engine::countAliveCurrentField() {
             }
         }
     }
-    std::wcout << L"Count alive == " << count << std::endl;
+    //std::wcout << L"Count alive == " << count << std::endl;
 }
