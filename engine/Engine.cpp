@@ -12,10 +12,12 @@ bool Engine::init(std::wstring wtitle, int width, int height) {
 
     Engine::prevField = new Cell * [width / Engine::wCell];
     Engine::currField = new Cell * [width / Engine::wCell];
+    Engine::userField = new Cell * [width / Engine::wCell];    
     unsigned int alive = 0, dead = 0;
     for (unsigned int i = 0; i < width / Engine::wCell; i++) {
         Engine::prevField[i] = new Cell[height / Engine::hCell];
         Engine::currField[i] = new Cell[height / Engine::hCell];
+        Engine::userField[i] = new Cell[height / Engine::hCell];        
         for (unsigned int j = 0; j < height / Engine::hCell; j++) {
             if (((double) rand() / (RAND_MAX)) > 0.9) {
                 Engine::currField[i][j].setStatus(Status::ALIVE);
@@ -26,6 +28,7 @@ bool Engine::init(std::wstring wtitle, int width, int height) {
                 Engine::prevField[i][j].setStatus(Status::DEAD);
                 dead++;
             }
+            Engine::userField[i][j].setStatus(Status::DEAD);
         }
     }
     std::wcout << L"ALIVE == " << alive << L", DEAD == " << dead << std::endl;
@@ -78,6 +81,8 @@ void Engine::render() {
 
     renderField();
 
+    renderUserInput();
+
     copyField();
 
     SDL_RenderPresent(pRenderer); // draw to the screen
@@ -87,26 +92,43 @@ void Engine::handleEvents() {
     SDL_Event event;
     if (SDL_PollEvent(&event)) {
         switch (event.type) {
-        case SDL_QUIT: // Close button
-            std::wcout << L"quit" << std::endl;
-            Engine::bRunning = false;
-            break;
-        case SDL_KEYDOWN: // Press any key
-            std::wcout << L"KEY DOWN" << std::endl;
-            if (event.key.keysym.sym == SDLK_ESCAPE) { // press ESC
+            case SDL_QUIT: // Close button
+                std::wcout << L"quit" << std::endl;
                 Engine::bRunning = false;
                 break;
-            }
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-            int x, y;
-            SDL_GetMouseState( &x, &y );
-            std::wcout << L"Mouse coords [" << x << L", " << y << L"] == CELL [" << x / Engine::wCell << L", " << y / Engine::hCell << L"]" << std::endl;
-            int xIndex = x / Engine::wCell, yIndex = y / Engine::hCell;
+            case SDL_KEYDOWN: // Press any key
+                std::wcout << L"KEY DOWN" << std::endl;
+                if (event.key.keysym.sym == SDLK_ESCAPE) { // press ESC
+                    Engine::bRunning = false;
+                    break;
+                }
+            case SDL_MOUSEMOTION: {
+                if (Engine::bUserInput == false) { break; }
+                if (event.button.button != SDL_BUTTON_LEFT) { break; }
 
-            Engine::prevField[xIndex][yIndex].setStatus(Status::ALIVE);
-            Engine::currField[xIndex][yIndex].setStatus(Status::ALIVE);
-            break;
+                int x = event.motion.x, y = event.motion.y;
+                std::wcout << L"Mouse coords [" << x << L", " << y << L"] == CELL [" << x / Engine::wCell << L", " << y / Engine::hCell << L"]" << std::endl;
+                int xIndex = x / Engine::wCell, yIndex = y / Engine::hCell;
+                Engine::userField[xIndex][yIndex].setStatus(Status::ALIVE);
+                break;
+            }
+            case SDL_MOUSEBUTTONDOWN: {
+                if (event.button.button != SDL_BUTTON_LEFT) { break; }
+
+                Engine::bUserInput = true;
+                std::wcout << L"MOUSE DOWN" << std::endl;
+                int x, y;
+                SDL_GetMouseState( &x, &y );
+                std::wcout << L"Mouse coords [" << x << L", " << y << L"] == CELL [" << x / Engine::wCell << L", " << y / Engine::hCell << L"]" << std::endl;
+                int xIndex = x / Engine::wCell, yIndex = y / Engine::hCell;
+                Engine::userField[xIndex][yIndex].setStatus(Status::ALIVE);
+                break;
+            }
+            case SDL_MOUSEBUTTONUP:
+                if (event.button.button != SDL_BUTTON_LEFT) { break; }
+                Engine::bUserInput = false;
+                std::wcout << L"MOUSE UP" << std::endl;
+                break;
         }
     }
 }
@@ -446,6 +468,47 @@ void Engine::calcField() {
             }
             break;
     }
+
+    if (Engine::bUserInput == false) {
+        for (unsigned int i = 0; i < Engine::width / Engine::wCell; i++) {
+            for (unsigned int j = 0; j < Engine::height / Engine::hCell; j++) {
+                if (Engine::userField[i][j].getStatus() == Status::ALIVE) {
+                    Engine::currField[i][j].setStatus(Status::ALIVE);
+                    Engine::userField[i][j].setStatus(Status::DEAD);
+                }
+            }
+        }
+    }
+}
+
+void Engine::renderUserInput() {
+    if (Engine::bUserInput == false) { return; }
+
+    SDL_SetRenderDrawColor(Engine::pRenderer, 255, 255, 255, 255);
+
+    int count = 0;
+    for (unsigned int i = 0; i < Engine::width / Engine::wCell; i++) {
+        for (unsigned int j = 0; j < Engine::height / Engine::hCell; j++) {
+            if (Engine::userField[i][j].getStatus() == Status::ALIVE) {
+                count++;
+            }
+        }
+    }
+    SDL_Rect * rects = new SDL_Rect[count];
+    count = 0;
+    for (unsigned int i = 0; i < Engine::width / Engine::wCell; i++) {
+        for (unsigned int j = 0; j < Engine::height / Engine::hCell; j++) {
+            if (Engine::userField[i][j].getStatus() == Status::ALIVE) {
+                rects[count].x = i * Engine::wCell + 1;
+                rects[count].y = j * Engine::hCell + 1;
+                rects[count].w = Engine::wCell - 2;
+                rects[count].h = Engine::hCell - 2;
+                count++;
+            }
+        }
+    }
+    SDL_RenderFillRects(Engine::pRenderer, rects, count);
+    delete[] rects;
 }
 
 void Engine::copyField() {
@@ -466,5 +529,5 @@ void Engine::countAliveCurrentField() {
             }
         }
     }
-    //std::wcout << L"Count alive == " << count << std::endl;
+    std::wcout << L"Count alive == " << count << std::endl;
 }

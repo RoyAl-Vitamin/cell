@@ -25,6 +25,7 @@ private:
 
     void renderNet();
     void renderField();
+    void renderUserInput();
     void calcField();
     void copyField();
     void countAliveCurrentField();
@@ -33,8 +34,10 @@ private:
     const int wCell = 8;
     Cell **prevField;
     Cell **currField;
+    Cell **userField;
     int currentFrame;
     bool bRunning;
+    bool bUserInput;
     int height, width;
     SDL_Window *pWindow;
     SDL_Renderer *pRenderer;
