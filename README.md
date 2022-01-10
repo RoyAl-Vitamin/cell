@@ -1,9 +1,17 @@
 # Пример работы клеточного автомата на SDL 2
 
-## Сборка
+## Сборка (Native)
 
 ```terminal
-em++ main.cpp engine/Engine.cpp -s USE_SDL=2 -o main.html
+cmake -S . -B ./build/
+cd build && make
+```
+
+
+## Сборка (Web)
+
+```terminal
+em++ main.cpp engine/Engine.cpp engine/cell/Cell.cpp -s USE_SDL=2 -o main.html
 ```
 
 ## Запуск проекта
