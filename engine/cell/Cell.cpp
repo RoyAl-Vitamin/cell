@@ -36,16 +36,16 @@ size_t Cell::incIterAlive() {
 SDL_Color Cell::getColor() {
     switch (Cell::iterAlive) {
         case 0:
-            return Cell::DEAD_COLOR;
+        //    return Cell::DEAD_COLOR;
         case 1:
-            return Cell::ALIVE_COLOR_4;
+            return Cell::ALIVE_COLOR_1;
         case 2:
-            return Cell::ALIVE_COLOR_3;
-        case 3:
             return Cell::ALIVE_COLOR_2;
+        case 3:
+            return Cell::ALIVE_COLOR_3;
         case 4:
-            return Cell::ALIVE_COLOR_1;
+            return Cell::ALIVE_COLOR_4;
         default:
-            return Cell::ALIVE_COLOR_1;
+            return Cell::ALIVE_COLOR_4;
     }
 }

@@ -41,9 +41,9 @@ private:
     int height, width;
     SDL_Window *pWindow;
     SDL_Renderer *pRenderer;
-    static constexpr SDL_Color DEAD_COLOR = Cell::DEAD_COLOR;
-    static constexpr SDL_Color BORDER_COLOR = {21, 20, 77, 255};
-    static constexpr SDL_Color USER_INPUT_COLOR = {255, 255, 255, 255};
+    const SDL_Color DEAD_COLOR = {31, 31, 77, 255};//Cell::DEAD_COLOR;
+    const SDL_Color BORDER_COLOR = {21, 20, 77, 255};
+    const SDL_Color USER_INPUT_COLOR = {255, 255, 255, 255};
 };
 
 #endif //NBODYSIM_ENGINE_H
