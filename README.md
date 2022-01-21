@@ -7,7 +7,6 @@ cmake -S . -B ./build/
 cd build && make
 ```
 
-
 ## Сборка (Web)
 
 ```terminal

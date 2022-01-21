@@ -17,7 +17,7 @@ bool Engine::init(std::wstring wtitle, int width, int height) {
     for (unsigned int i = 0; i < width / Engine::wCell; i++) {
         Engine::prevField[i] = new Cell[height / Engine::hCell];
         Engine::currField[i] = new Cell[height / Engine::hCell];
-        Engine::userField[i] = new Cell[height / Engine::hCell];        
+        Engine::userField[i] = new Cell[height / Engine::hCell];
         for (unsigned int j = 0; j < height / Engine::hCell; j++) {
             if (((double) rand() / (RAND_MAX)) > 0.9) {
                 Engine::currField[i][j].setStatus(Status::ALIVE);
@@ -70,8 +70,8 @@ bool Engine::init(const char* title, int xpos, int ypos, int width, int height, 
 }
 
 void Engine::render() {
-    // set to black
-    SDL_SetRenderDrawColor(Engine::pRenderer, 107, 125, 96, 255);
+
+    SDL_SetRenderDrawColor(Engine::pRenderer, Engine::DEAD_COLOR.r, Engine::DEAD_COLOR.g, Engine::DEAD_COLOR.b, Engine::DEAD_COLOR.a);
 
     SDL_RenderClear(pRenderer); // clear the renderer to the draw color
 
@@ -165,7 +165,7 @@ void Engine::clean() {
 bool Engine::isRunning() { return Engine::bRunning; }
 
 void Engine::renderNet() {
-    SDL_SetRenderDrawColor(Engine::pRenderer, 41, 49, 29, 255);
+    SDL_SetRenderDrawColor(Engine::pRenderer, Engine::BORDER_COLOR.r, Engine::BORDER_COLOR.g, Engine::BORDER_COLOR.b, Engine::BORDER_COLOR.a);
 
     for (int i = 0; i <= Engine::width; i += Engine::wCell) {
         SDL_RenderDrawLine(Engine::pRenderer, i, 0, i, Engine::height - 1);
@@ -178,14 +178,13 @@ void Engine::renderNet() {
 }
 
 void Engine::renderField() {
-    SDL_SetRenderDrawColor(Engine::pRenderer, 0, 0, 0, 255);
-
     int count = 0;
 
-    for (unsigned int i = 0; i < Engine::width / Engine::wCell; i++) {
-        for (unsigned int j = 0; j < Engine::height / Engine::hCell; j++) {
+    for (size_t i = 0; i < Engine::width / Engine::wCell; i++) {
+        for (size_t j = 0; j < Engine::height / Engine::hCell; j++) {
             if (Engine::currField[i][j].getStatus() == Status::ALIVE) {
                 count++;
+                Engine::currField[i][j].incIterAlive();
             }
         }
     }
@@ -193,18 +192,22 @@ void Engine::renderField() {
 
     SDL_Rect * rects = new SDL_Rect[count];
     count = 0;
-    for (unsigned int i = 0; i < Engine::width / Engine::wCell; i++) {
-        for (unsigned int j = 0; j < Engine::height / Engine::hCell; j++) {
+    for (size_t i = 0; i < Engine::width / Engine::wCell; i++) {
+        for (size_t j = 0; j < Engine::height / Engine::hCell; j++) {
             if (Engine::currField[i][j].getStatus() == Status::ALIVE) {
                 rects[count].x = i * Engine::wCell + 1;
                 rects[count].y = j * Engine::hCell + 1;
                 rects[count].w = Engine::wCell - 2;
                 rects[count].h = Engine::hCell - 2;
+                
+                SDL_Color color = Engine::currField[i][j].getColor();
+                SDL_SetRenderDrawColor(Engine::pRenderer, color.r, color.g, color.b, color.a);
+                SDL_RenderFillRect(Engine::pRenderer, &rects[count]);
                 count++;
             }
         }
     }
-    SDL_RenderFillRects(Engine::pRenderer, rects, count);
+    //SDL_RenderFillRects(Engine::pRenderer, rects, count);
     delete[] rects;
 }
 
@@ -484,7 +487,7 @@ void Engine::calcField() {
 void Engine::renderUserInput() {
     if (Engine::bUserInput == false) { return; }
 
-    SDL_SetRenderDrawColor(Engine::pRenderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(Engine::pRenderer, Engine::USER_INPUT_COLOR.r, Engine::USER_INPUT_COLOR.g, Engine::USER_INPUT_COLOR.b, Engine::USER_INPUT_COLOR.a);
 
     int count = 0;
     for (unsigned int i = 0; i < Engine::width / Engine::wCell; i++) {
