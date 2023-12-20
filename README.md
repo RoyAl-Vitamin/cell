@@ -26,3 +26,8 @@ python3 -m http.server
 ```terminal
 python -m SimpleHTTPServer
 ```
+
+
+## Ссылки
+
+1. [Главный цикл в пошаговых играх](https://habr.com/ru/articles/677578/)
