@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v3
       - uses: mymindstorm/setup-emsdk@v14
       - name: Build html bundle
-        run: em++ main.cpp engine/Engine.cpp engine/cell/Cell.cpp -s USE_SDL=2 -o main.html
+        run: em++ main.cpp engine/Engine.cpp engine/cell/Cell.cpp -s USE_SDL=2 -o index.html
       - uses: actions/upload-artifact@v4
         with:
           name: page
