@@ -14,12 +14,13 @@ jobs:
       - uses: mymindstorm/setup-emsdk@v14
       - name: Build html bundle
         run: em++ main.cpp engine/Engine.cpp engine/cell/Cell.cpp -s USE_SDL=2 -o main.html
-      - name: Search needed file
-        run: ls -la
       - uses: actions/upload-artifact@v4
         with:
           name: page
-          path: .
+          path: |
+            index.html
+            index.wasm
+            index.js
           if-no-files-found: error
   deploy:
     needs: build
@@ -34,8 +35,6 @@ jobs:
         with:
           name: page
           path: .
-      - name: Search needed file
-        run: ls -la
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
