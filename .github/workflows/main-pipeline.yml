@@ -14,6 +14,13 @@ jobs:
       - uses: mymindstorm/setup-emsdk@v14
       - name: Build html bundle
         run: em++ main.cpp engine/Engine.cpp engine/cell/Cell.cpp -s USE_SDL=2 -o main.html
+      - name: Search needed file
+        run: ls -la
+      - uses: actions/upload-artifact@v4
+        with:
+          name: page
+          path: .
+          if-no-files-found: error
   deploy:
     needs: build
     permissions:
@@ -23,6 +30,10 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: page
+          path: .
       - name: Search needed file
         run: ls -la
       - name: Deploy
