@@ -1,0 +1,33 @@
+name: ci-cd-emscripten
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone this repo
+        uses: actions/checkout@v3
+      - uses: mymindstorm/setup-emsdk@v14
+      - name: Build html bundle
+        run: |
+          ls -la
+          em++ main.cpp engine/Engine.cpp engine/cell/Cell.cpp -s USE_SDL=2 -o main.html
+  deploy:
+    needs: build
+    permissions:
+      contents: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
